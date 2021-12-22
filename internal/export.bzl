@@ -7,7 +7,7 @@ def _poetry_export_impl(repository_ctx):
 
     for format in ["pyproject.toml", "poetry.lock"]:
         result = repository_ctx.execute([
-            "python",
+            "python3",
             strip_dependencies_py,
             "--file",
             repository_ctx.path(format + ".in"),
@@ -20,7 +20,7 @@ def _poetry_export_impl(repository_ctx):
             fail("Poetry strip dependencies failed:\n%s\n%s" % (result.stdout, result.stderr))
 
     args = [
-        "python",
+        "python3",
         poetry_runner_py,
         "export",
         "--without-hashes",
