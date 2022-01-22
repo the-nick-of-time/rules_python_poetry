@@ -3,15 +3,21 @@
 
 import sys
 import os
+from pathlib import Path
+
+def find_vendors_version(root):
+    root = Path(root)
+    major = sys.version_info.major
+    for minor in range(sys.version_info.minor, 0, -1):
+        vendored = root / "poetry" / "_vendor" / "py{}.{}".format(major, minor)
+        if vendored.exists():
+            return vendored
+    raise FileNotFoundError("No matching vendored packages found for current python version")
 
 lib = os.path.normpath(os.path.join(os.path.realpath(__file__), "..", "src"))
-vendors = os.path.join(lib, "poetry", "_vendor")
-current_vendors = os.path.join(
-    vendors, "py{}".format(".".join(str(v) for v in sys.version_info[:2]))
-)
 
 sys.path.insert(0, lib)
-sys.path.insert(0, current_vendors)
+sys.path.insert(0, str(find_vendors_version(lib)))
 
 if __name__ == "__main__":
     from poetry.console import main
