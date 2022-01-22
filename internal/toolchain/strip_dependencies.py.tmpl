@@ -3,12 +3,21 @@
 import argparse
 import sys
 import os
+from pathlib import Path
 
-lib = os.path.normpath(os.path.join(os.path.realpath(__file__), "..", "src"))
-vendors = os.path.join(lib, "poetry", "_vendor")
-current_vendors = os.path.join(
-    vendors, "py{}".format(".".join(str(v) for v in sys.version_info[:2]))
-)
+
+def find_vendors_version(root):
+    root = Path(root)
+    major = sys.version_info[0]
+    for minor in range(sys.version_info[1], 0, -1):
+        vendored = root / "poetry" / "_vendor" / "py{}.{}".format(major, minor)
+        if vendored.exists():
+            return vendored
+    raise FileNotFoundError("No matching vendored packages found for current python version")
+
+
+lib = os.path.normpath(os.path.join(os.path.realpath(__file__), "../..", "src"))
+current_vendors = find_vendors_version(lib)
 
 sys.path.insert(0, lib)
 sys.path.insert(0, current_vendors)
